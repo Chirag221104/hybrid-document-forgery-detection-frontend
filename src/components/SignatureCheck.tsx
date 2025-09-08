@@ -15,9 +15,10 @@ interface SignatureData {
 
 interface SignatureCheckProps {
   data: SignatureData;
+  fileType?: string;  // New optional prop for file type (e.g., 'pdf' or 'docx')
 }
 
-const SignatureCheck: React.FC<SignatureCheckProps> = ({ data }) => {
+const SignatureCheck: React.FC<SignatureCheckProps> = ({ data, fileType = 'unknown' }) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const getSignatureStatus = () => {
@@ -30,7 +31,7 @@ const SignatureCheck: React.FC<SignatureCheckProps> = ({ data }) => {
         badge: "No Signature",
         badgeVariant: "secondary" as const,
         title: "No Digital Signature",
-        description: "This document does not contain a digital signature."
+        description: `This ${fileType.toUpperCase()} document does not contain a digital signature.`
       };
     }
 
@@ -187,7 +188,7 @@ const SignatureCheck: React.FC<SignatureCheckProps> = ({ data }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
-                  <User className="w-4 w-4 text-gray-500" />
+                  <User className="w-4 h-4 text-gray-500" />
                   <div>
                     <div className="text-sm font-medium text-muted-foreground">Signer Name</div>
                     <div className="text-sm font-semibold">{data.signerName}</div>

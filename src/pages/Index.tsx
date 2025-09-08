@@ -306,8 +306,12 @@ const Index = () => {
               <ImageAnalysis data={results.imageAnalysis} />
             )}
             
-            {/* Only show SignatureCheck for PDFs */}
-            {results.signatureCheck && results.metadata && results.metadata.type.includes('pdf') && (
+            {/* Show SignatureCheck for PDFs and DOCX */}
+            {results.signatureCheck && results.metadata && (
+              results.metadata.type.includes('pdf') || 
+              results.metadata.type.includes('word') || 
+              results.metadata.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ) && (
               <SignatureCheck data={results.signatureCheck} />
             )}
           </div>
@@ -335,7 +339,7 @@ const Index = () => {
               {
                 icon: AlertTriangle,  
                 title: "Digital Signatures",
-                description: "Verify digital signatures and certificate validity"
+                description: "Verify digital signatures in PDFs and DOCX files, and certificate validity"
               }
             ].map((feature, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-shadow">
