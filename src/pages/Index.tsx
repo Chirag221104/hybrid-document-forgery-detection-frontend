@@ -26,8 +26,12 @@ const Index = () => {
   const [currentAnalysisStep, setCurrentAnalysisStep] = useState("");
   const { toast } = useToast();
 
+  // Helper to print ISO -> local
+  const formatDateTime = (iso?: string | null) =>
+    iso ? new Date(iso).toLocaleString() : "—";
+
   const handleFileSelect = (selectedFile: File, preview?: string) => {
-    console.log('File selected:', selectedFile.name);
+    console.log("File selected:", selectedFile.name);
     setFile(selectedFile);
     setImagePreview(preview || null);
     setResults(null);
@@ -39,17 +43,16 @@ const Index = () => {
     if (!file) {
       toast({
         title: "No file selected",
-        description: "Please select a file to analyze",  
+        description: "Please select a file to analyze",
         variant: "destructive",
       });
       return;
     }
 
-    console.log('Starting backend analysis for:', file.name);
+    console.log("Starting backend analysis for:", file.name);
     setIsAnalyzing(true);
     setAnalysisProgress(0);
 
-    // Enhanced progress simulation
     const progressSteps = [
       { progress: 10, message: "Initializing analysis...", delay: 300 },
       { progress: 25, message: "Uploading file to server...", delay: 500 },
@@ -57,7 +60,7 @@ const Index = () => {
       { progress: 60, message: "Analyzing text content...", delay: 600 },
       { progress: 75, message: "Checking images and signatures...", delay: 500 },
       { progress: 90, message: "Generating analysis report...", delay: 400 },
-      { progress: 100, message: "Analysis complete!", delay: 200 }
+      { progress: 100, message: "Analysis complete!", delay: 200 },
     ];
 
     let currentStepIndex = 0;
@@ -76,16 +79,17 @@ const Index = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      // ✅ FIXED: Use your latest backend deployment URL consistently
-      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-      const apiUrl = isProduction 
-        ? "https://hybrid-document-forgery-detection-backend-production.up.railway.app"  // ✅ Your latest backend
+      const isProduction =
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1";
+      const apiUrl = isProduction
+        ? "https://hybrid-document-forgery-detection-backend-production.up.railway.app"
         : "http://localhost:8000";
 
-      console.log('🌍 Current hostname:', window.location.hostname);
-      console.log('🚀 Is Production:', isProduction);
-      console.log('🔗 API URL being used:', apiUrl);
-      console.log('🎯 Full request URL:', `${apiUrl}/api/analyze`);
+      console.log("🌍 Current hostname:", window.location.hostname);
+      console.log("🚀 Is Production:", isProduction);
+      console.log("🔗 API URL being used:", apiUrl);
+      console.log("🎯 Full request URL:", `${apiUrl}/api/analyze`);
 
       const response = await fetch(`${apiUrl}/api/analyze`, {
         method: "POST",
@@ -98,7 +102,7 @@ const Index = () => {
       }
 
       const data = await response.json();
-      console.log('✅ Backend response received:', data);
+      console.log("✅ Backend response received:", data);
 
       clearInterval(progressInterval);
       setAnalysisProgress(100);
@@ -113,25 +117,26 @@ const Index = () => {
 
       toast({
         title: "Analysis Complete",
-        description: "Document analysis completed successfully with real metadata extraction",
+        description:
+          "Document analysis completed successfully with real metadata extraction",
       });
-
     } catch (error) {
-      console.error('❌ Backend analysis error:', error);
+      console.error("❌ Backend analysis error:", error);
       clearInterval(progressInterval);
       setAnalysisProgress(0);
       setCurrentAnalysisStep("");
-      
-      // ✅ FIXED: Use same API URL as in try block
-      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-      const apiUrl = isProduction 
-        ? "https://hybrid-document-forgery-detection-backend-production.up.railway.app"  // ✅ Same URL consistently
+
+      const isProduction =
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "127.0.0.1";
+      const apiUrl = isProduction
+        ? "https://hybrid-document-forgery-detection-backend-production.up.railway.app"
         : "http://localhost:8000";
-      
+
       let errorMessage = "Failed to analyze document. Please try again.";
-      
+
       if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch')) {
+        if (error.message.includes("Failed to fetch")) {
           errorMessage = `❌ Cannot connect to backend at ${apiUrl}. Backend may be down or there's a network issue.`;
         } else {
           errorMessage = error.message;
@@ -166,7 +171,8 @@ const Index = () => {
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Advanced AI-powered analysis to detect document tampering, verify authenticity, and ensure integrity
+            Advanced AI-powered analysis to detect document tampering, verify
+            authenticity, and ensure integrity
           </p>
         </div>
 
@@ -192,8 +198,8 @@ const Index = () => {
                       </p>
                     </div>
                   </div>
-                  <Button 
-                    onClick={handleAnalyze} 
+                  <Button
+                    onClick={handleAnalyze}
                     disabled={isAnalyzing}
                     className="bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 transition-opacity min-w-[160px]"
                   >
@@ -210,18 +216,24 @@ const Index = () => {
                     )}
                   </Button>
                 </div>
-                
+
                 {/* Inline Progress Bar */}
                 {isAnalyzing && (
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-primary">Processing...</span>
-                      <span className="text-sm font-bold text-primary">{analysisProgress}%</span>
+                      <span className="text-sm font-medium text-primary">
+                        Processing...
+                      </span>
+                      <span className="text-sm font-bold text-primary">
+                        {analysisProgress}%
+                      </span>
                     </div>
                     <Progress value={analysisProgress} className="w-full h-2" />
                     <div className="flex items-center space-x-2">
                       <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                      <p className="text-xs text-muted-foreground">{currentAnalysisStep}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {currentAnalysisStep}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -243,24 +255,30 @@ const Index = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-semibold">Analysis Progress</span>
-                  <span className="text-2xl font-bold text-primary">{analysisProgress}%</span>
+                  <span className="text-2xl font-bold text-primary">
+                    {analysisProgress}%
+                  </span>
                 </div>
                 <Progress value={analysisProgress} className="w-full h-4 bg-gray-200" />
                 <div className="flex items-center space-x-3">
                   <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                  <p className="text-base font-medium text-foreground">{currentAnalysisStep}</p>
+                  <p className="text-base font-medium text-foreground">
+                    {currentAnalysisStep}
+                  </p>
                 </div>
               </div>
 
               {/* Analysis Steps Checklist */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Analysis Steps</h4>
+                  <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+                    Analysis Steps
+                  </h4>
                   {[
                     { step: "File Upload", completed: analysisProgress > 10 },
                     { step: "Metadata Extraction", completed: analysisProgress > 40 },
                     { step: "Content Analysis", completed: analysisProgress > 60 },
-                    { step: "Report Generation", completed: analysisProgress > 90 }
+                    { step: "Report Generation", completed: analysisProgress > 90 },
                   ].map((item, index) => (
                     <div key={index} className="flex items-center space-x-2">
                       {item.completed ? (
@@ -268,18 +286,24 @@ const Index = () => {
                       ) : (
                         <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
                       )}
-                      <span className={`text-sm ${item.completed ? 'text-green-600 font-medium' : 'text-muted-foreground'}`}>
+                      <span
+                        className={`text-sm ${
+                          item.completed ? "text-green-600 font-medium" : "text-muted-foreground"
+                        }`}
+                      >
                         {item.step}
                       </span>
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Processing</h4>
+                  <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
+                    Processing
+                  </h4>
                   <div className="text-sm space-y-1">
-                    <div>📄 Document Type: {file?.type || 'Unknown'}</div>
-                    <div>📏 File Size: {file ? (file.size / 1024 / 1024).toFixed(2) : '0'} MB</div>
+                    <div>📄 Document Type: {file?.type || "Unknown"}</div>
+                    <div>📏 File Size: {file ? (file.size / 1024 / 1024).toFixed(2) : "0"} MB</div>
                     <div>⏱️ Estimated Time: ~10 seconds</div>
                   </div>
                 </div>
@@ -291,8 +315,41 @@ const Index = () => {
         {/* Results Section */}
         {results && (
           <div className="grid gap-6">
+            {/* NEW: Key Metadata Grid (Author | Last Modified By) + (Created | Last Modified) */}
+            {results.metadata && (
+              <Card className="border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-primary">Key Metadata</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs uppercase text-muted-foreground">Author</p>
+                      <p className="text-base font-medium">{results.metadata.author ?? "Not specified"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase text-muted-foreground">Last Modified By</p>
+                      <p className="text-base font-medium">
+                        {results.metadata.lastModifiedBy ?? "Not specified"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <p className="text-xs uppercase text-muted-foreground">Created</p>
+                      <p className="text-sm">{formatDateTime(results.metadata.createdDate)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase text-muted-foreground">Last Modified</p>
+                      <p className="text-sm">{formatDateTime(results.metadata.modifiedDate)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MetadataResult 
+              <MetadataResult
                 data={results.metadata}
                 imagePreview={imagePreview}
                 fileName={file?.name}
@@ -300,23 +357,22 @@ const Index = () => {
               />
               <TextAnalysis data={results.textAnalysis} />
             </div>
-            
+
             {/* Only show ImageAnalysis if images are found */}
-            {results.imageAnalysis && (
-              <ImageAnalysis data={results.imageAnalysis} />
-            )}
-            
+            {results.imageAnalysis && <ImageAnalysis data={results.imageAnalysis} />}
+
             {/* Show SignatureCheck for PDFs and DOCX */}
-            {results.signatureCheck && results.metadata && (
-              results.metadata.type.includes('pdf') || 
-              results.metadata.type.includes('word') || 
-              results.metadata.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ) && (
-              <SignatureCheck data={results.signatureCheck} />
-            )}
+            {results.signatureCheck &&
+              results.metadata &&
+              (results.metadata.type.includes("pdf") ||
+                results.metadata.type.includes("word") ||
+                results.metadata.type ===
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document") && (
+                <SignatureCheck data={results.signatureCheck} />
+              )}
           </div>
         )}
-          
+
         {/* Features Overview */}
         {!results && !isAnalyzing && (
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -324,23 +380,24 @@ const Index = () => {
               {
                 icon: FileText,
                 title: "Metadata Analysis",
-                description: "Extract and analyze real document metadata for inconsistencies"
+                description: "Extract and analyze real document metadata for inconsistencies",
               },
               {
                 icon: Shield,
                 title: "Text Verification",
-                description: "Detect text-based forgeries and suspicious modifications"
+                description: "Detect text-based forgeries and suspicious modifications",
               },
               {
                 icon: CheckCircle,
                 title: "Image Analysis",
-                description: "Identify tampered images and suspicious regions in PDFs"
+                description: "Identify tampered images and suspicious regions in PDFs",
               },
               {
-                icon: AlertTriangle,  
+                icon: AlertTriangle,
                 title: "Digital Signatures",
-                description: "Verify digital signatures in PDFs and DOCX files, and certificate validity"
-              }
+                description:
+                  "Verify digital signatures in PDFs and DOCX files, and certificate validity",
+              },
             ].map((feature, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
