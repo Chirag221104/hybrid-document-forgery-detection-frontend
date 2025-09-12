@@ -315,7 +315,7 @@ const Index = () => {
         {/* Results Section */}
         {results && (
           <div className="grid gap-6">
-            {/* NEW: Key Metadata Grid (Author | Last Modified By) + (Created | Last Modified) */}
+            {/* Document-level: Author | Last Modified By ; Created | Last Modified */}
             {results.metadata && (
               <Card className="border-primary/20">
                 <CardHeader>
@@ -325,7 +325,9 @@ const Index = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs uppercase text-muted-foreground">Author</p>
-                      <p className="text-base font-medium">{results.metadata.author ?? "Not specified"}</p>
+                      <p className="text-base font-medium">
+                        {results.metadata.author ?? "Not specified"}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs uppercase text-muted-foreground">Last Modified By</p>
@@ -348,6 +350,67 @@ const Index = () => {
               </Card>
             )}
 
+            {/* Image-level: show EXIF/XMP metadata per image */}
+            {results.imageAnalysis?.images?.length > 0 && (
+              <Card className="border-primary/20">
+                <CardHeader>
+                  <CardTitle className="text-primary">Image Metadata (EXIF/XMP)</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <p className="text-sm text-muted-foreground">
+                    {results.imageAnalysis.images.length} image
+                    {results.imageAnalysis.images.length > 1 ? "s" : ""} detected; showing creator and dates when present.
+                  </p>
+                  {results.imageAnalysis.images.map((img: any, idx: number) => {
+                    const meta = img.metadata || {};
+                    return (
+                      <div key={idx} className="rounded-lg border p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="font-semibold">
+                            Image {img.index ?? idx + 1}
+                            {img.page ? ` · Page ${img.page}` : ""}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {img.width && img.height ? `${img.width}×${img.height}` : ""}
+                            {img.filter ? ` · ${img.filter}` : ""}
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs uppercase text-muted-foreground">Author</p>
+                            <p className="text-base font-medium">
+                              {meta.author ?? "Not specified"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase text-muted-foreground">Last Modified By</p>
+                            <p className="text-base font-medium">
+                              {meta.lastModifiedBy ?? "Not specified"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                          <div>
+                            <p className="text-xs uppercase text-muted-foreground">Created</p>
+                            <p className="text-sm">
+                              {formatDateTime(meta.createdDate)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase text-muted-foreground">Last Modified</p>
+                            <p className="text-sm">
+                              {formatDateTime(meta.modifiedDate)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Existing result cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MetadataResult
                 data={results.metadata}
